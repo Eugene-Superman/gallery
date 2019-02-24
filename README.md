@@ -5,4 +5,3 @@
 4. npm install
 5. Prepare your Android device
 6. react-native run-android
-Enjoy
