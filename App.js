@@ -7,13 +7,12 @@
  * @lint-ignore-every XPLATJSCOPYRIGHT1
  */
 
-import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import React, { Component } from 'react';
 import { createStackNavigator, createAppContainer } from "react-navigation";
 import PhotoList from './screens/PhotoList.js'
 
 import { Provider } from 'react-redux'
-import store from './redux/store'
+import configureStore from './redux/configureStore';
 
 const AppNavigator = createStackNavigator({
   Home: {
@@ -22,7 +21,7 @@ const AppNavigator = createStackNavigator({
 });
 
 const AppContainer = createAppContainer(AppNavigator);
-
+const store = configureStore();
 export default class App extends Component {
   render() {
     return (
@@ -32,8 +31,3 @@ export default class App extends Component {
     );
   }
 }
-
-
-
-
-

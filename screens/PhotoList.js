@@ -1,10 +1,22 @@
-import React, {Component} from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
+import React, { Component } from 'react';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 
-export default class PhotoList extends Component {
-  constructor(props){
+import { connect } from "react-redux";
+import { getPhotosAsync } from '../redux/actions';
+
+const mapStateToProps = state => ({
+  allPhotos: state.items,
+  isLoading: state.itemsIsLoading,
+
+})
+const mapDispatchToProps = {
+  getPhotosAsync
+};
+
+class PhotoList extends Component {
+  constructor(props) {
     super(props);
-    this.state ={ isLoading: true}
+    this.state = { isLoading: true }
   }
 
   static navigationOptions = {
@@ -12,32 +24,22 @@ export default class PhotoList extends Component {
   };
 
   componentDidMount() {
-    return fetch('https://api.unsplash.com/photos/?client_id=cf49c08b444ff4cb9e4d126b7e9f7513ba1ee58de7906e4360afc1a33d1bf4c0')
-      .then((response) => response.json())
-      .then((responseJson) => {
-        this.setState({
-          isLoading: false,
-          dataSource: responseJson,
-        }, function(){
-
-        });
-
-      })
-      .catch((error) =>{
-        console.error(error);
-      });
+    if (this.props.allPhotos.length == 0) {
+      let requestUrl = 'https://api.unsplash.com/photos/?client_id=cf49c08b444ff4cb9e4d126b7e9f7513ba1ee58de7906e4360afc1a33d1bf4c0';
+      this.props.getPhotosAsync(requestUrl);
+    }
   }
 
   _onPress = () => {
-    console.log("проверка")
+    console.log("check");
   }
 
-  _renderItem = ({item}) => (
+  _renderItem = ({ item }) => (
     <TouchableOpacity onPress={this._onPress}>
-      <View style={styles.item} onPress={this._onPressItem}>        
+      <View style={styles.item}>
         <Image
           style={styles.itemImage}
-          source={{uri: item.urls.small}}
+          source={{ uri: item.urls.small }}
         />
         <Text style={styles.itemText}>{item.user.name}</Text>
       </View>
@@ -45,20 +47,27 @@ export default class PhotoList extends Component {
   );
 
   render() {
-    if(this.state.isLoading){
-      return(
+    if (this.props.hasErrored) {
+      return (
+        <View>
+          <Text>Sorry! There was an error loading the items</Text>
+        </View>
+      )
+    }
+    if (this.props.isLoading) {
+      return (
         <View style={styles.activityIndicator}>
-          <ActivityIndicator/>
+          <ActivityIndicator />
         </View>
       )
     }
 
-    return(
+    return (
       <View style={styles.container}>
         <FlatList
-          data={this.state.dataSource}
+          data={this.props.allPhotos}
           renderItem={this._renderItem}
-          keyExtractor={({id}, index) => id}
+          keyExtractor={({ id }, index) => id}
         />
       </View>
     );
@@ -67,7 +76,7 @@ export default class PhotoList extends Component {
 
 const styles = StyleSheet.create({
   activityIndicator: {
-    flex: 1, 
+    flex: 1,
     padding: 20,
   },
   container: {
@@ -80,11 +89,16 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   itemImage: {
-    width: 100, 
+    width: 100,
     height: 100,
   },
   itemText: {
-    paddingLeft: 15,  
+    paddingLeft: 15,
     fontSize: 20,
   }
 })
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(PhotoList);
