@@ -1,41 +1,44 @@
 import React, { Component } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity
+} from 'react-native';
 
 import { connect } from "react-redux";
 import { getPhotosAsync } from '../redux/actions';
 
+import PropTypes from "prop-types";
+
 const mapStateToProps = state => ({
   allPhotos: state.items,
   isLoading: state.itemsIsLoading,
-
 })
 const mapDispatchToProps = {
   getPhotosAsync
 };
 
 class PhotoList extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { isLoading: true }
-  }
-
   static navigationOptions = {
     title: 'Photos',
   };
 
   componentDidMount() {
-    if (this.props.allPhotos.length == 0) {
-      let requestUrl = 'https://api.unsplash.com/photos/?client_id=cf49c08b444ff4cb9e4d126b7e9f7513ba1ee58de7906e4360afc1a33d1bf4c0';
-      this.props.getPhotosAsync(requestUrl);
-    }
+    let requestUrl = 'https://api.unsplash.com/photos/?client_id=cf49c08b444ff4cb9e4d126b7e9f7513ba1ee58de7906e4360afc1a33d1bf4c0';
+    this.props.getPhotosAsync(requestUrl);
   }
 
-  _onPress = () => {
-    console.log("check");
+  _onPress = (fullImageUrl) => {
+    this.props.navigation.navigate(
+      'Image', { imageUrl: fullImageUrl });
   }
 
   _renderItem = ({ item }) => (
-    <TouchableOpacity onPress={this._onPress}>
+    <TouchableOpacity onPress={() => this._onPress(item.urls.full)}>
       <View style={styles.item}>
         <Image
           style={styles.itemImage}
@@ -47,13 +50,6 @@ class PhotoList extends Component {
   );
 
   render() {
-    if (this.props.hasErrored) {
-      return (
-        <View>
-          <Text>Sorry! There was an error loading the items</Text>
-        </View>
-      )
-    }
     if (this.props.isLoading) {
       return (
         <View style={styles.activityIndicator}>
@@ -97,6 +93,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
   }
 })
+
+PhotoList.propTypes = {
+  navigation: PropTypes.object.isRequired,
+  allPhotos: PropTypes.arrayOf(PropTypes.object),
+  isLoading: PropTypes.bool,
+  getPhotosAsync: PropTypes.func
+};
 
 export default connect(
   mapStateToProps,

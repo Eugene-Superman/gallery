@@ -9,15 +9,20 @@
 
 import React, { Component } from 'react';
 import { createStackNavigator, createAppContainer } from "react-navigation";
-import PhotoList from './screens/PhotoList.js'
 
 import { Provider } from 'react-redux'
 import configureStore from './redux/configureStore';
 
+import PhotoList from './screens/PhotoList.js'
+import FullImage from './screens/FullImage.js'
+
 const AppNavigator = createStackNavigator({
   Home: {
     screen: PhotoList
-  }
+  },
+  Image: {
+    screen: FullImage
+  },
 });
 
 const AppContainer = createAppContainer(AppNavigator);
